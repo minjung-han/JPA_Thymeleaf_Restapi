@@ -34,6 +34,42 @@ public class OrderItem {
     //주문 수량
     private int count;
 
+    //주문 Item 생성 메소드
+    public static OrderItem createOrderItem(Item item, int orderPrice, int count) {
+        OrderItem orderItem = new OrderItem();
+        //OrderItem(주문 상품)과 Item(상품) 연결
+        orderItem.setItem(item);
+        //주문한 상품의 가격
+        orderItem.setOrderPrice(orderPrice);
+        //주문한 상품의 수량
+        orderItem.setCount(count);
+        //상품 재고 수량 감소
+        item.removeStock(count);
+
+        return orderItem;
+
+    }
+    //==비즈니스 로직 : 주문 취소 ==//
+    public void cancel() {
+        //주문이 취소되면 재고 수량이 증가
+        getItem().addStock(this.count);
+    }
+    //==비즈니스 로직 : 주문상품 전체 가격 조회 ==//
+    public int getTotalPrice() {
+            //    주문 상품 가격 * 수량
+        return getOrderPrice() * getCount();
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
