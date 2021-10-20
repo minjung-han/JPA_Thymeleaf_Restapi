@@ -64,7 +64,7 @@ public class OrderService {
         order.cancel();
     }
 
-    /**주문
+    /**주문 검색
      * @param orderSearch
      * @return 주문 목록
      * */
