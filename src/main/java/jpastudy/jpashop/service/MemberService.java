@@ -38,8 +38,20 @@ public class MemberService {
     public List<Member> findMembers() {
         return memberRepository.findAll();
     }
+    //Id로 회원 하나 조회
     public Member findOne(Long memberId) {
         return memberRepository.findOne(memberId);
     }
+
+
+    /**
+     * 회원 수정 (변경감지를 이용)
+     */
+    @Transactional
+    public void update(Long id, String name) {
+        Member member = memberRepository.findOne(id);
+        member.setName(name);
+    }
+    
 }
 

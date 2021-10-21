@@ -3,7 +3,6 @@ package jpastudy.jpashop.domain;
 import lombok.Getter;
 import lombok.Setter;
 
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
+//    @NotEmpty 검증을 위한 어노테이션은 사용하지 않아야 함
     private  String name;
 
     @Embedded //: address 의 객체를 참조한다는 의미
