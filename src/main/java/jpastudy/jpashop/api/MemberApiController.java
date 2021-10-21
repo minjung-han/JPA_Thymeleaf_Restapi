@@ -11,6 +11,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @RestController
 @RequiredArgsConstructor
 public class MemberApiController {
@@ -50,6 +52,45 @@ public class MemberApiController {
         return memberService.findMembers();
     }
 
+    /**
+     * 조회 V2: 응답 값으로 엔티티가 아닌 별도의 DTO를 반환한다
+     * => List<MemberDto>를 반환하는 것
+     */
+    @GetMapping("/api/v2/members")
+    public List<MemberDto> membersV2() {
+        List<Member> findMembers = memberService.findMembers();
+        //Entity -> DTO 로 변환
+        List<MemberDto> memberDtoList = findMembers.stream() //return type : Stream<Member>
+                .map(member -> new MemberDto(member.getName()))
+                //return type : Stream<MemberDto>
+                //List<MemberDto> 로 변환
+                .collect(toList());
+
+        return memberDtoList;
+    }
+
+
+    /**
+     * 조회 V2: 응답 값으로 엔티티가 아닌 별도의 DTO를 반환한다
+     * => Result<List<MemberDto>> 로 반환하는 것
+     */
+    @GetMapping("/api/v2.1/members")
+    public Result membersV2_1() {
+        List<Member> findMembers = memberService.findMembers();
+        //Entity -> DTO 로 변환
+        List<MemberDto> memberDtoList = findMembers.stream() //return type : Stream<Member>
+                .map(member -> new MemberDto(member.getName()))
+                //return type : Stream<MemberDto>
+                //List<MemberDto> 로 변환
+                .collect(toList());
+
+        return new Result(memberDtoList.size(),memberDtoList);
+    }
+
+
+
+
+
 
     //응답과 요청에 사용할 DTO inner class 선언
 
@@ -77,8 +118,17 @@ public class MemberApiController {
         private String name;
     }
 
-
-
+    @Data
+    @AllArgsConstructor
+    class Result<T> {
+        private int cnt;
+        private T data;
+    }
+    @Data
+    @AllArgsConstructor
+    class MemberDto {
+        private String name;
+    }
 
 
 
