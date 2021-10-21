@@ -42,7 +42,7 @@ public class OrderRepository {
     }
 
     private BooleanExpression nameLike(String memberName) {
-        if(StringUtils.hasText(memberName)){
+        if(!StringUtils.hasText(memberName)){
             return null;
         }
         return QMember.member.name.like(memberName);
