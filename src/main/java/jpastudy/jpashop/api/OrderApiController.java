@@ -2,6 +2,8 @@ package jpastudy.jpashop.api;
 
 import jpastudy.jpashop.domain.*;
 import jpastudy.jpashop.repository.OrderRepository;
+import jpastudy.jpashop.repository.order.query.OrderQueryDto;
+import jpastudy.jpashop.repository.order.query.OrderQueryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,8 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class OrderApiController {
     private final OrderRepository orderRepository;
+
+    private final OrderQueryRepository orderQueryRepository;
 
     /**
      * V1 : 엔티티를 API에 직접 노출하는 방식
@@ -92,6 +96,21 @@ public class OrderApiController {
 
 
     //응답과 요청에 사용할 DTO Inner Class 선언
+
+    @Data
+    static class OrderItemDto {
+        private String itemName; //상품 명
+        private int orderPrice; //주문 가격
+        private int count; //주문 수량
+
+        public OrderItemDto(OrderItem orderItem) {
+            itemName = orderItem.getItem().getName(); //LAZY Loading 초기화
+            orderPrice = orderItem.getOrderPrice();
+            count = orderItem.getCount();
+        }
+    } //static class OrderItemDto
+
+
     @Data
     static class OrderDto {
         private Long orderId;
@@ -103,11 +122,12 @@ public class OrderApiController {
 
         public OrderDto(Order order) {
             orderId = order.getId();
-            name = order.getMember().getName();
+            name = order.getMember().getName(); //LAZY Loading 초기화
             orderDate = order.getOrderDate();
             orderStatus = order.getStatus();
-            address = order.getDelivery().getAddress();
-            orderItems = order.getOrderItems()
+            address = order.getDelivery().getAddress(); //LAZY Loading 초기화
+
+            orderItems = order.getOrderItems() //LAZY Loading 초기화
                     .stream() // Stream<OrderItem>
                     .map(orderItem -> new OrderItemDto(orderItem)) //Stream(OrderItemDto)
                     .collect(toList()); //List<OrderItemDto>
@@ -116,18 +136,15 @@ public class OrderApiController {
     } //static class OrderDto
 
 
-    @Data
-    static class OrderItemDto {
-        private String itemName; //상품 명
-        private int orderPrice; //주문 가격
-        private int count; //주문 수량
+    /**
+     * V4 : 쿼리를 수행할 때 DTO 저장했기 때문에 그대로 사용하면 된다
+     *
+     */
 
-        public OrderItemDto(OrderItem orderItem) {
-            itemName = orderItem.getItem().getName();
-            orderPrice = orderItem.getOrderPrice();
-            count = orderItem.getCount();
-        }
-    } //static class OrderItemDto
+    @GetMapping("/api/v4/orders")
+    public List<OrderQueryDto> ordersV4() {
+        return orderQueryRepository.findOrdersQueryDtos();
+    }
 
 
 }
