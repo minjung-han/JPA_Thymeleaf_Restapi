@@ -5,6 +5,7 @@ import jpastudy.jpashop.repository.OrderRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -63,11 +64,32 @@ public class OrderApiController {
     @GetMapping("/api/v3/orders")
     public List<OrderDto> ordersV3() {
         List<Order> orders = orderRepository.findAllWithItem();
+        orders.forEach(order -> System.out.println(order));
+
         List<OrderDto> result = orders.stream()
                 .map(o -> new OrderDto(o))
                 .collect(Collectors.toList());
         return result;
     }
+
+    /**
+     * V 3.1 : 엔티티를 DTO로 변환해서 노출 , Fetch Join을 사용해서 성능 최적화
+     * ToMany 관계인 엔티티를 가져올 댸 페이징 처리 되지 않는 문제를 해결하기 위해
+     * ToOne 관계인 엔티티는 Fetch Join 으로 가져오고
+     * ToMany 관계는 hibernate.default_batch_fetch_size 설정하기
+     * */
+
+    @GetMapping("/api/v3.1/orders")
+    public List<OrderDto> ordersV3_Paging(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue= "100") int limit) {
+        List<Order> orderList = orderRepository.findAllWithMemberDelivery(offset,limit);
+        List<OrderDto> orderDtoList = orderList.stream() //Stream<Order>
+                .map(order -> new OrderDto(order)) //Stream<OrderDto>
+                .collect(Collectors.toList()); //List<OrderDto>
+        return orderDtoList;
+    }
+
 
     //응답과 요청에 사용할 DTO Inner Class 선언
     @Data
